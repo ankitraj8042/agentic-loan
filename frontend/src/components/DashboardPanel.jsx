@@ -247,15 +247,22 @@ function DashboardPanel({ sessionData, language = 'en' }) {
               </div>
             )}
             
-            {decision.status === 'APPROVED' && sessionData.pdfFilename && (
-              <a 
-                href={`/api/download-pdf/${sessionData.pdfFilename}`}
-                download
-                className="download-btn"
-              >
-                📥 {t('downloadLetter')}
-              </a>
-            )}
+            <div className="decision-actions">
+              {decision.status === 'APPROVED' && sessionData.pdfFilename && (
+                <a 
+                  href={`/api/download-pdf/${sessionData.pdfFilename}`}
+                  download
+                  className="download-btn"
+                >
+                  📥 {t('downloadLetter')}
+                </a>
+              )}
+              {decision.status === 'APPROVED' && !sessionData.pdfFilename && (
+                <p style={{ color: '#f56565', marginTop: '1rem' }}>
+                  {language === 'hi' ? 'पीडीएफ जनरेट हो रहा है...' : 'PDF generating...'}
+                </p>
+              )}
+            </div>
           </div>
         )}
         

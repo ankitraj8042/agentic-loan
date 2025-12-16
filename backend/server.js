@@ -5,6 +5,7 @@
 import express from 'express'
 import cors from 'cors'
 import multer from 'multer'
+import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { v4 as uuidv4 } from 'uuid'
@@ -187,10 +188,29 @@ app.get('/api/download-pdf/:filename', (req, res) => {
   const { filename } = req.params
   const filepath = path.join(__dirname, 'pdfs', filename)
   
-  res.download(filepath, (err) => {
-    if (err) {
-      console.error('PDF download error:', err)
-      res.status(404).json({ error: 'PDF not found' })
+  console.log('PDF Download Request:', filename)
+  console.log('File path:', filepath)
+  
+  // Check if file exists first
+  if (!fs.existsSync(filepath)) {
+    console.error('PDF not found:', filepath)
+    return res.status(404).json({ error: 'PDF not found' })
+  }
+  
+  console.log('File exists, starting download...')
+  
+  // Set proper headers
+  res.setHeader('Content-Type', 'application/pdf')
+  res.setHeader('Content-Disposition', `attachment; filename="${filename}"`)
+  
+  // Stream the file
+  const fileStream = fs.createReadStream(filepath)
+  fileStream.pipe(res)
+  
+  fileStream.on('error', (err) => {
+    console.error('File stream error:', err)
+    if (!res.headersSent) {
+      res.status(500).json({ error: 'Error downloading file' })
     }
   })
 })
