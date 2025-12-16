@@ -1,9 +1,12 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { getTranslation, formatCurrency } from '../translations'
 import './DashboardPanel.css'
 
 function DashboardPanel({ sessionData, language = 'en' }) {
   const t = (key) => getTranslation(language, key)
+  const [simulatorAmount, setSimulatorAmount] = useState('')
+  const [simulatorTenure, setSimulatorTenure] = useState('')
+  const [isSimulatorOpen, setIsSimulatorOpen] = useState(false)
   
   if (!sessionData) {
     return (
@@ -50,19 +53,25 @@ function DashboardPanel({ sessionData, language = 'en' }) {
     return calculateEligibility()
   }
   
-  const calculateEMI = () => {
-    if (!loan.amount || !loan.tenure) return 0
+  const calculateEMI = (amount, tenure) => {
+    if (!amount || !tenure) return 0
     
     const monthlyRate = 12.5 / 1200
-    const emi = loan.amount * monthlyRate * Math.pow(1 + monthlyRate, loan.tenure) / 
-                (Math.pow(1 + monthlyRate, loan.tenure) - 1)
+    const emi = amount * monthlyRate * Math.pow(1 + monthlyRate, tenure) / 
+                (Math.pow(1 + monthlyRate, tenure) - 1)
     
     return Math.round(emi)
   }
   
+  const simulatedEMI = calculateEMI(
+    simulatorAmount || loan.amount, 
+    simulatorTenure || loan.tenure
+  )
+  
+  const calculatedEMI = calculateEMI(loan.amount, loan.tenure)
+  
   const eligibility = calculateEligibility()
   const approvalProbability = calculateApprovalProbability()
-  const emi = calculateEMI()
   
   const stages = ['SALES', 'VERIFICATION', 'UNDERWRITING', 'DOCUMENT', 'FINAL']
   const currentStageIndex = stages.indexOf(stage)
@@ -146,7 +155,16 @@ function DashboardPanel({ sessionData, language = 'en' }) {
         
         {/* Loan Simulator */}
         <div className="widget simulator-widget">
-          <h3>{t('simulatorTitle')}</h3>
+          <div className="simulator-header">
+            <h3>{t('simulatorTitle')}</h3>
+            <button 
+              className="simulator-toggle"
+              onClick={() => setIsSimulatorOpen(!isSimulatorOpen)}
+            >
+              {isSimulatorOpen ? '🔽' : '▶️'} {isSimulatorOpen ? (language === 'hi' ? 'बंद करें' : 'Close') : (language === 'hi' ? 'खोलें' : 'Open')}
+            </button>
+          </div>
+          
           <div className="simulator-details">
             <div className="detail-row">
               <span>{t('loanAmount')}:</span>
@@ -167,10 +185,45 @@ function DashboardPanel({ sessionData, language = 'en' }) {
             <div className="detail-row highlight">
               <span>{t('emi')}:</span>
               <span className="value">
-                {emi > 0 ? formatCurrency(emi, language) : '—'}
+                {calculatedEMI > 0 ? formatCurrency(calculatedEMI, language) : '—'}
               </span>
             </div>
           </div>
+          
+          {isSimulatorOpen && (
+            <div className="simulator-controls">
+              <h4>{language === 'hi' ? '🧮 कस्टम गणना' : '🧮 Custom Calculation'}</h4>
+              <div className="input-group">
+                <label>{t('loanAmount')}:</label>
+                <input 
+                  type="number"
+                  placeholder={loan.amount || '200000'}
+                  value={simulatorAmount}
+                  onChange={(e) => setSimulatorAmount(Number(e.target.value))}
+                  min="50000"
+                  max="2000000"
+                  step="10000"
+                />
+              </div>
+              <div className="input-group">
+                <label>{t('tenure')} ({t('months')}):</label>
+                <input 
+                  type="number"
+                  placeholder={loan.tenure || '24'}
+                  value={simulatorTenure}
+                  onChange={(e) => setSimulatorTenure(Number(e.target.value))}
+                  min="6"
+                  max="60"
+                />
+              </div>
+              <div className="simulated-result">
+                <span>{language === 'hi' ? '📊 अनुमानित ईएमआई:' : '📊 Estimated EMI:'}</span>
+                <span className="simulated-emi">
+                  {simulatedEMI > 0 ? formatCurrency(simulatedEMI, language) : '—'}
+                </span>
+              </div>
+            </div>
+          )}
         </div>
         
         {/* Decision Card */}
@@ -196,9 +249,8 @@ function DashboardPanel({ sessionData, language = 'en' }) {
             
             {decision.status === 'APPROVED' && sessionData.pdfFilename && (
               <a 
-                href={`http://localhost:5000/pdfs/${sessionData.pdfFilename}`}
-                target="_blank"
-                rel="noopener noreferrer"
+                href={`/api/download-pdf/${sessionData.pdfFilename}`}
+                download
                 className="download-btn"
               >
                 📥 {t('downloadLetter')}

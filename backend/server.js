@@ -182,6 +182,19 @@ app.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date() })
 })
 
+// ROUTE: Download PDF
+app.get('/api/download-pdf/:filename', (req, res) => {
+  const { filename } = req.params
+  const filepath = path.join(__dirname, 'pdfs', filename)
+  
+  res.download(filepath, (err) => {
+    if (err) {
+      console.error('PDF download error:', err)
+      res.status(404).json({ error: 'PDF not found' })
+    }
+  })
+})
+
 // ROUTE: Initialize Firebase dummy data (call once)
 app.post('/api/init-firebase', async (req, res) => {
   try {
