@@ -235,5 +235,3 @@ This project is created for the EY Techathon 2024.
 - React and Vite for frontend framework
 
 ---
-
-**Built with ❤️ for EY Techathon**
