@@ -10,26 +10,42 @@ function App() {
   const [sessionData, setSessionData] = useState(null)
   const [language, setLanguage] = useState('en') // en | hi
   const [voiceEnabled, setVoiceEnabled] = useState(false)
+  const t = (key) => getTranslation(language, key)
 
   // Initialize session on mount
   useEffect(() => {
     initializeSession()
   }, [])
 
+  // Update initial greeting when language changes
+  useEffect(() => {
+    setMessages(prev => {
+      if (!prev || prev.length === 0) return prev
+      // find first Master Agent message
+      const idx = prev.findIndex(m => m.agent === 'Master Agent')
+      if (idx === -1) return prev
+      const updated = [...prev]
+      updated[idx] = { ...updated[idx], text: t('welcomeGreeting') }
+      return updated
+    })
+  }, [language])
+
   const initializeSession = async () => {
     try {
+      // send preferred language to server (optional)
       const response = await fetch('/api/session/init', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ language })
       })
       const data = await response.json()
       setSessionId(data.sessionId)
       setSessionData(data.session)
-      
-      // Add initial greeting
+
+      // Use frontend translation so greeting respects current UI language immediately
       setMessages([{
         agent: 'Master Agent',
-        text: data.greeting,
+        text: t('welcomeGreeting'),
         timestamp: new Date()
       }])
     } catch (error) {
@@ -119,7 +135,7 @@ function App() {
     }
   }
 
-  const t = (key) => getTranslation(language, key)
+  
 
   return (
     <div className="app">

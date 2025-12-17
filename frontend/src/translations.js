@@ -63,7 +63,10 @@ export const translations = {
     underwritingAgent: 'Underwriting Agent',
     documentAgent: 'Document Agent',
     sanctionAgent: 'Sanction Letter Agent',
-    user: 'User'
+    user: 'User',
+    
+    // Welcome
+    welcomeGreeting: "Hello! I'm your personal loan assistant. How can I help you today?",
   },
   
   hi: {
@@ -129,7 +132,10 @@ export const translations = {
     underwritingAgent: 'मूल्यांकन एजेंट',
     documentAgent: 'दस्तावेज़ एजेंट',
     sanctionAgent: 'स्वीकृति पत्र एजेंट',
-    user: 'उपयोगकर्ता'
+    user: 'उपयोगकर्ता',
+
+        // Welcome
+    welcomeGreeting: 'नमस्ते! मैं आपका व्यक्तिगत ऋण सहायक हूँ। मैं आपकी कैसे मदद कर सकता हूँ?'
   }
 }
 
