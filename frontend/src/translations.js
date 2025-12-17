@@ -57,7 +57,7 @@ export const translations = {
     preApprovedLimit: 'Pre-approved Limit',
     
     // Agent Names
-    masterAgent: 'Master Agent',
+    masterAgent: 'Agent L.',
     salesAgent: 'Sales Agent',
     verificationAgent: 'Verification Agent',
     underwritingAgent: 'Underwriting Agent',
@@ -126,7 +126,7 @@ export const translations = {
     preApprovedLimit: 'पूर्व-स्वीकृत सीमा',
     
     // Agent Names
-    masterAgent: 'मास्टर एजेंट',
+    masterAgent: 'एजेंट एल.',
     salesAgent: 'बिक्री एजेंट',
     verificationAgent: 'सत्यापन एजेंट',
     underwritingAgent: 'मूल्यांकन एजेंट',
